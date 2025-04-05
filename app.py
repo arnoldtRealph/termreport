@@ -76,18 +76,20 @@ chart_options = ["Vertical Bar", "Scatter Plot", "Box Plot"]
 selected_chart = st.sidebar.selectbox("Select chart type for Total Marks per Learner", chart_options, index=0)
 
 # Main content
-st.markdown("<h1 class='custom-title' style='text-align: center;'>Saul Damon High School</h1>", unsafe_allow_html=True)
-st.markdown("<div class='welcome-text'>**Welkom julle.** Gebruik hierdie tool wat ek ontwerp het om handige insig te kry vanuit leerders se toetse en take.</div>", unsafe_allow_html=True)
+st.header("Saul Damon High School")
+st.subheader("Welkom julle. Gebruik hierdie tool wat ek ontwerp het om handige insig te kry vanuit leerders se toetse en take.")
 
 # Improved Instructions with Larger Text
-st.markdown('<div class="larger-instructions">', unsafe_allow_html=True)
 st.info("""
-### Instructions
-1. Gebruik die excel templaat wat ek aan julle voorsien het om die punte per vraag analise te doen.  
-2. Upload dan die excel file in die sidebar hier langsaan.  
-3. Download dan die Word dokument en stoor in die masterfile.
+### Instruksies
+**1. Gebruik die excel :rainbow[templaat] wat ek aan julle voorsien het 
+        om die punte per vraag analise te doen.**
+
+**2. Upload dan die :red[excel file] in die sidebar hier langsaan.**
+        
+**3. Download dan die Word dokument en stoor in u :blue[masterfile].**
 """, icon="ℹ️")
-st.markdown('</div>', unsafe_allow_html=True)
+
 
 if uploaded_file:
     # Read the Excel file
