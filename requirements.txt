@@ -4,3 +4,4 @@ seaborn
 matplotlib
 fpdf
 openpyxl
+python-docx
