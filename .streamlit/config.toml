@@ -1,0 +1,9 @@
+[theme]
+primaryColor = "#003366"        # Deep blue for buttons and accents
+backgroundColor = "#F4F6F9"     # Light gray-blue for main background
+secondaryBackgroundColor = "#E8ECEF"  # Light gray for sidebar
+textColor = "#333333"           # Dark gray for text
+font = "Arial"                  # Consistent with your CSS
+
+[ui]
+showSidebarNavigation = true
