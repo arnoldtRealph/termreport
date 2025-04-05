@@ -63,7 +63,7 @@ for section_name, section_id in sections.items():
 st.markdown("<h1 class='custom-title' style='text-align: center;'>Saul Damon High School</h1>", unsafe_allow_html=True)
 st.markdown("""
     <div class='welcome-text'>
-        Welcome, Educators! Unleash the power of data to inspire and elevate your learners’ potential!
+        Welkom julle. Gebruik hierdie handige tool wat ek ontwerp het om handige insig te kry vanuit leerders se toetse en take.
     </div>
     <div class='instructions'>
         To get started, upload your Excel mark sheet in the sidebar. Ensure it includes learner names, 
