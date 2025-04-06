@@ -61,6 +61,10 @@ st.sidebar.title("📊 Dashboard Options")
 st.sidebar.markdown("### File Upload")
 uploaded_file = st.sidebar.file_uploader("Upload your Excel file", type=["xlsx"])
 
+# Add manual navigation to second page
+st.sidebar.markdown("### Pages")
+st.sidebar.markdown('<a href="/analysis" style="text-decoration: none; color: #003366;">Advanced Learner Analysis</a>', unsafe_allow_html=True)
+
 st.sidebar.markdown("### Navigation")
 sections = {
     "Learner Overview": "overview",
@@ -76,7 +80,7 @@ chart_options = ["Vertical Bar", "Scatter Plot", "Box Plot"]
 selected_chart = st.sidebar.selectbox("Select chart type for Total Marks per Learner", chart_options, index=0)
 
 # Main content
-st.header("Saul Damon High School")
+st.header("HOËRSKOOL SAUL DAMON")
 st.subheader("Welkom julle. Gebruik hierdie tool wat ek ontwerp het om handige insig te kry vanuit leerders se toetse en take.")
 
 # Improved Instructions with Larger Text
@@ -90,8 +94,12 @@ st.info("""
 **3. Download dan die Word dokument en stoor in u :blue[masterfile].**
 """, icon="ℹ️")
 
+# Initialize session state for file upload tracking
+if 'file_processed' not in st.session_state:
+    st.session_state['file_processed'] = False
 
-if uploaded_file:
+# Process file only if uploaded and not yet processed, or if a new file is uploaded
+if uploaded_file and (not st.session_state['file_processed'] or st.session_state.get('uploaded_file') != uploaded_file):
     # Read the Excel file
     df_raw = pd.read_excel(uploaded_file, header=None)
     header_row = next((i for i, row in df_raw.iterrows() if any("name of learner" in str(cell).lower() for cell in row)), None)
@@ -107,6 +115,12 @@ if uploaded_file:
                 df['Total'] = df[question_cols].sum(axis=1)
                 max_total = df['Total'].max()
                 df['Percentage'] = (df['Total'] / max_total * 100) if max_total > 0 else 0
+                # Store processed data in session_state
+                st.session_state['df'] = df
+                st.session_state['name_col'] = name_col
+                st.session_state['question_cols'] = question_cols
+                st.session_state['file_processed'] = True
+                st.session_state['uploaded_file'] = uploaded_file  # Track the current file
             else:
                 st.error("No numeric question columns found after 'NAME OF LEARNER'.")
                 st.stop()
@@ -116,6 +130,12 @@ if uploaded_file:
     else:
         st.error("Could not locate 'NAME OF LEARNER' row.")
         st.stop()
+
+# Display content only if file is processed
+if st.session_state.get('file_processed', False):
+    df = st.session_state['df']
+    name_col = st.session_state['name_col']
+    question_cols = st.session_state['question_cols']
 
     # Define function to save chart to buffer
     def save_chart_to_buffer(fig):
@@ -180,7 +200,7 @@ if uploaded_file:
     ax.set_title("Marks Breakdown by Learner and Question", color='#003366', pad=20)
     ax.set_xlabel("Learner")
     ax.set_ylabel("Marks")
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=90, ha='center')  # Match Total Marks chart
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=90, ha='center')
     ax.legend(title="Questions", bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.tight_layout()
     st.pyplot(stacked_fig)
