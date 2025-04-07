@@ -81,6 +81,7 @@ selected_chart = st.sidebar.selectbox("Select chart type for Total Marks per Lea
 
 # Main content
 st.header("HOËRSKOOL SAUL DAMON")
+st.subheader(":blue[Wetenskappe Departement]")
 st.subheader("Welkom julle. Gebruik hierdie tool wat ek ontwerp het om handige insig te kry vanuit leerders se toetse en take.")
 
 # Improved Instructions with Larger Text
@@ -103,6 +104,8 @@ if uploaded_file and (not st.session_state['file_processed'] or st.session_state
     # Read the Excel file
     df_raw = pd.read_excel(uploaded_file, header=None)
     header_row = next((i for i, row in df_raw.iterrows() if any("name of learner" in str(cell).lower() for cell in row)), None)
+    total_row = next((i for i, row in df_raw.iterrows() if any("totaal:" in str(cell).lower() for cell in row)), None)
+    
     if header_row is not None:
         df = pd.read_excel(uploaded_file, skiprows=header_row)
         df.columns = df.columns.str.strip()
@@ -113,14 +116,21 @@ if uploaded_file and (not st.session_state['file_processed'] or st.session_state
             if question_cols:
                 df[question_cols] = df[question_cols].fillna(0)
                 df['Total'] = df[question_cols].sum(axis=1)
-                max_total = df['Total'].max()
-                df['Percentage'] = (df['Total'] / max_total * 100) if max_total > 0 else 0
+                
+                # Extract total possible marks from the "TOTAAL:" row
+                if total_row is not None:
+                    total_value = df_raw.iloc[total_row].apply(str).str.extract(r'(\d+)').dropna().iloc[0, 0]
+                    max_possible = int(total_value)  # e.g., 50
+                else:
+                    max_possible = 50  # Default if not found
+                df['Percentage'] = (df['Total'] / max_possible * 100)
+                
                 # Store processed data in session_state
                 st.session_state['df'] = df
                 st.session_state['name_col'] = name_col
                 st.session_state['question_cols'] = question_cols
                 st.session_state['file_processed'] = True
-                st.session_state['uploaded_file'] = uploaded_file  # Track the current file
+                st.session_state['uploaded_file'] = uploaded_file
             else:
                 st.error("No numeric question columns found after 'NAME OF LEARNER'.")
                 st.stop()
@@ -147,7 +157,6 @@ if st.session_state.get('file_processed', False):
     # Learner Overview
     st.markdown(f'<a name="overview"></a>', unsafe_allow_html=True)
     st.subheader("Results DASHBOARD")
-    st.write("Upload your class mark sheet to generate insightful analysis.")
     
     st.subheader("📊 Average Percentage per Learner")
     avg_fig, ax1 = plt.subplots(figsize=(8, max(5, len(df) * 0.3)))
@@ -277,7 +286,7 @@ if st.session_state.get('file_processed', False):
             good_questions = [q for q in active_questions if learner_data[q].iloc[0] > active_means[q]]
             bad_questions = [q for q in active_questions if learner_data[q].iloc[0] < active_means[q]]
             
-            if percentage < 40:
+            if percentage < 30:
                 tier = "Needs Improvement"
             elif percentage < 70:
                 tier = "Average"
@@ -326,7 +335,7 @@ if st.session_state.get('file_processed', False):
         # Title Page
         doc.add_heading('Learner Performance Report', 0).alignment = WD_ALIGN_PARAGRAPH.CENTER
         doc.add_paragraph('Saul Damon High School', style='Subtitle').alignment = WD_ALIGN_PARAGRAPH.CENTER
-        doc.add_paragraph('Generated on April 05, 2025', style='Subtitle').alignment = WD_ALIGN_PARAGRAPH.CENTER
+        doc.add_paragraph('Generated on April 06, 2025', style='Subtitle').alignment = WD_ALIGN_PARAGRAPH.CENTER
         doc.add_page_break()
 
         # Performance Overview
